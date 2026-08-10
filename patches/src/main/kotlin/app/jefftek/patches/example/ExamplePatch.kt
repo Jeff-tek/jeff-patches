@@ -1,10 +1,10 @@
-package app.template.patches.example
+package app.jefftek.patches.example
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
-import app.template.patches.shared.Constants.COMPATIBILITY_EXAMPLE
+import app.jefftek.patches.shared.Constants.COMPATIBILITY_EXAMPLE
 
-private const val EXTENSION_CLASS = "Lapp/template/extension/ExamplePatch;"
+private const val EXTENSION_CLASS = "Lapp/jefftek/extension/ExamplePatch;"
 
 @Suppress("unused")
 val examplePatch = bytecodePatch(

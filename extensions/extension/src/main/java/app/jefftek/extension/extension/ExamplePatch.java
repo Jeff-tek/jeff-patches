@@ -1,4 +1,4 @@
-package app.template.extension.extension;
+package app.jefftek.extension.extension;
 
 @SuppressWarnings("unused")
 public class ExamplePatch {

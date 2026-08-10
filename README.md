@@ -1,12 +1,12 @@
-# 👋🧩 Morphe Patches template
+# 👋🧩 Jeff-tek Patches
 
-Template repository for Morphe Patches.
+Custom patches for Android apps I use, built on the [Morphe](https://github.com/MorpheApp/morphe-manager) patcher.
 
 ## ❓ About
 
-Patches for apps I like.
-
-TODO: Update this about section with a brief introduction/summary about this repo and what it offers.
+Patches for apps I like. This repo is a source of Morphe-compatible patches:
+each `feat:`/`fix:` commit on `dev` is automatically built by GitHub Actions and
+released as a pre-release; merging `dev` into `main` publishes a stable release.
 
 ## 🩹 Patches list
 
@@ -72,15 +72,15 @@ To develop and release your Patches using this template:
 
 #### How to use these patches
 
-Click here to add these patches to Morphe: https://morphe.software/add-source?github=xyz-user/xyz-patches
+Click here to add these patches to Morphe: https://morphe.software/add-source?github=Jeff-tek/jeff-patches
 
-Or manually add this repository url as a patch source in Morphe: https://github.com/xyz-user/xyz-patches
+Or manually add this repository url as a patch source in Morphe: https://github.com/Jeff-tek/jeff-patches
 
 ### 🛠️ Building
 
-To build UserXYZ Patches,
+To build Jeff-tek Patches,
 you can follow the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation).
 
 ## 📜 License
 
-UserXYZ Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+Jeff-tek Patches are licensed under the [GNU General Public License v3.0](LICENSE)
