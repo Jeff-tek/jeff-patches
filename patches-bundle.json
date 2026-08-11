@@ -1,7 +1,7 @@
 {
-  "created_at": "",
-  "description": "",
-  "download_url": "",
+  "created_at": "2026-08-11T08:54:36",
+  "description": "## [1.0.0-dev.2](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-08-11)\n\n### ✨ New Features\n\n* Add unlock-all-features and remove-ads patches for MP3 Cutter and Ringtone Maker ([bbab95b](https://github.com/Jeff-tek/jeff-patches/commit/bbab95bd3521505f16c9399dc07b1f378e0cd722))",
+  "download_url": "https://github.com/Jeff-tek/jeff-patches/releases/download/v1.0.0-dev.2/patches-1.0.0-dev.2.mpp",
   "signature_download_url": "",
-  "version": ""
+  "version": "1.0.0-dev.2"
 }
