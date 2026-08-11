@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-08-11T10:21:18",
-  "description": "## [1.0.1-dev.1](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.0...v1.0.1-dev.1) (2026-08-11)\n\n### 🐛 Bug Fixes\n\n* Make MP3 Cutter ads fingerprint robust against obfuscation ([4626999](https://github.com/Jeff-tek/jeff-patches/commit/4626999c17378e6cb93134840cc9cfa380d28400))",
-  "download_url": "https://github.com/Jeff-tek/jeff-patches/releases/download/v1.0.1-dev.1/patches-1.0.1-dev.1.mpp",
+  "created_at": "2026-08-11T10:40:53",
+  "description": "## [1.0.1-dev.2](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.1-dev.1...v1.0.1-dev.2) (2026-08-11)\n\n### 🐛 Bug Fixes\n\n* Harden all MP3 Cutter fingerprints and drop template example patches ([f7bbd30](https://github.com/Jeff-tek/jeff-patches/commit/f7bbd30377fec705be18cf362b18e5e53064378f))",
+  "download_url": "https://github.com/Jeff-tek/jeff-patches/releases/download/v1.0.1-dev.2/patches-1.0.1-dev.2.mpp",
   "signature_download_url": "",
-  "version": "1.0.1-dev.1"
+  "version": "1.0.1-dev.2"
 }

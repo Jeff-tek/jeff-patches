@@ -1,3 +1,9 @@
+## [1.0.1-dev.2](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.1-dev.1...v1.0.1-dev.2) (2026-08-11)
+
+### 🐛 Bug Fixes
+
+* Harden all MP3 Cutter fingerprints and drop template example patches ([f7bbd30](https://github.com/Jeff-tek/jeff-patches/commit/f7bbd30377fec705be18cf362b18e5e53064378f))
+
 ## [1.0.1-dev.1](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.0...v1.0.1-dev.1) (2026-08-11)
 
 ### 🐛 Bug Fixes
