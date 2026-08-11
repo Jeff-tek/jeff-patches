@@ -11,22 +11,7 @@ released as a pre-release; merging `dev` into `main` publishes a stable release.
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0](https://github.com/Jeff-tek/jeff-patches/releases/tag/v1.0.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;3 patches total
-<details open>
-<summary>📦 XYZ app&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
-<br>
-
-**🎯 Supported versions:**
-
-| 2.0.0 | 1.0.2 |
-| :---: | :---: |
-
-| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
-|----------|----------------|-----------|
-| [Example Patch](#example-patch) | Example patch to start with. |  |
-
-</details>
-
+> **[v1.0.1-dev.3](https://github.com/Jeff-tek/jeff-patches/releases/tag/v1.0.1-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
 <summary>📦 MP3 Cutter and Ringtone Maker&nbsp;&nbsp;•&nbsp;&nbsp;2 patches</summary>
 <br>
@@ -38,7 +23,7 @@ released as a pre-release; merging `dev` into `main` publishes a stable release.
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Remove ads](#remove-ads) | Removes splash, interstitial and banner ads from MP3 Cutter and Ringtone Maker. |  |
+| [Remove ads](#remove-ads) | Removes app-open, splash, interstitial and banner ads from MP3 Cutter and Ringtone Maker. |  |
 | [Unlock all features](#unlock-all-features) | Unlocks all premium features in MP3 Cutter and Ringtone Maker. |  |
 
 </details>

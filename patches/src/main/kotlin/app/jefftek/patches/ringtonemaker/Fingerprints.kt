@@ -2,39 +2,33 @@ package app.jefftek.patches.ringtonemaker
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.fieldAccess
-import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 
 /**
  * Fingerprints for MP3 Cutter and Ringtone Maker (ringtone.maker.mp3.cutter.audio) v2.3.5.1.
  *
- * App is InShot's MP3 Cutter & Ringtone Maker. Code is partially obfuscated (hl3, v32),
- * so fingerprints pin to the exact version target.
+ * App is InShot's MP3 Cutter & Ringtone Maker. Code is partially obfuscated (hl3, v32, k4, ra),
+ * so fingerprints pin to the exact version target (compatibleWith v2.3.5.1).
+ *
+ * NOTE on `definingClass`: per patcher StringComparisonType semantics, "/hl3;" is compared with
+ * ENDS_WITH and can NEVER match "Lhl3;". Always declare the full type `L...;` (EQUALS) or a
+ * suffix like "hl3;" (ENDS_WITH that actually holds).
  */
 
 /**
  * `Lhl3;->e()Z` — the app-wide "is premium / feature unlocked" gate.
  *
  * Read at 8+ call sites (ContactsActivity, FinishActivity, PickerActivity, ringtone
- * category detail, etc.). Returning `false` triggers ad display and premium locks;
- * returning `true` unlocks features and skips premium-gated ads.
+ * category detail, etc.). Returns true when the user is premium.
  *
- * Method shape (v2.3.5.1):
- * ```
- * .method public final e()Z
- *     iget v0, p0, Lhl3;->p:I
- *     const/4 v1, -0x1
- *     ...
- *     iget-object v0, p0, Lhl3;->a:Lzy0;
- *     iget-boolean v0, v0, Lzy0;->b:Z
- *     ...
- * ```
+ * Match anchors (verified against v2.3.5.1 smali): class `Lhl3;`, method `e`, boolean return,
+ * and the `iget-object v0, p0, Lhl3;->a:Lzy0;` field read (field `a` of `this` is `Lzy0;`).
+ * The `Lzy0;` field access is the stable anchor — `zy0` is the purchase-state holder.
  */
 object PremiumGateFingerprint : Fingerprint(
-    definingClass = "/hl3;",
+    definingClass = "Lhl3;",
     name = "e",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Z",
     filters = listOf(
         fieldAccess(
@@ -46,65 +40,57 @@ object PremiumGateFingerprint : Fingerprint(
 )
 
 /**
- * `Lv32;->c()Z` — the master "are ads enabled" switch.
+ * `Lk4;->m()Z` — the master "ads disabled" gate.
  *
- * Reads the `qaU9l5Yt` SharedPreferences flag (default `true` = ads ON) and caches it in
- * field `a`. Checked by SplashActivity (splash ads) and the `hs` ad scheduler
- * (interstitial/full-screen AdActivity). Returning `false` disables all scheduled ads.
- *
- * Method shape (v2.3.5.1):
- * ```
- * .method public final c()Z
- *     iget v0, p0, Lv32;->a:I
- *     const/4 v1, -0x1
- *     if-ne v0, v1, :cond_0
- *     const-string v0, "qaU9l5Yt"
- *     invoke-static {v0, v2}, Lf4;->j(Ljava/lang/String;Z)Z
- *     ...
- * ```
+ * Reads the `kmgJSgyY` SharedPreferences flag (default `false` = ads on) and returns true only
+ * when the flag is set AND the ad config object exists. Checked at 18 call sites across the app
+ * (ga activity-lifecycle app-open interstitial path, SplashActivity, AdActivity display,
+ * CategoryDetailActivity, q61 banner wrapper, ...) — every call site treats `true` as
+ * "block / skip the ad". Forcing `true` disables ads everywhere the app consults it.
  */
-object AdsEnabledFingerprint : Fingerprint(
-    definingClass = "/v32;",
-    name = "c",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+object AdsDisabledFingerprint : Fingerprint(
+    definingClass = "Lk4;",
+    name = "m",
     returnType = "Z",
-    filters = listOf(
-        string("qaU9l5Yt"),
-    )
+    strings = listOf("kmgJSgyY"),
+    custom = { method, _ -> AccessFlags.STATIC.isSet(method.accessFlags) }
 )
 
 /**
- * `Lcom/inshot/videotomp3/BaseBannerAdActivity;->a0()V` — banner show/hide.
+ * `Lra;->b(Landroid/content/Context;Loa;)V` — the App Open (interstitial) ad display entry.
  *
- * All ~10 ad-bearing activities extend this class and call `a0()` from `onCreate`.
- * When field `D` (the "no ads" pref `kmgJSgyY`) is `true`, the banner container is
- * hidden (`c0` → visibility GONE). When `false`, the banner stays visible.
- * Forcing `D = true` hides the banner in every activity.
+ * `Lra` wraps `Lcom/google/android/gms/ads/appopen/AppOpenAd`. `b(...)` loads unit config and
+ * schedules/displays the app-open ad; it is invoked from `Lga;->onActivityStopped` (app goes to
+ * background) and from a delayed `Lh` runnable. Returning immediately prevents the ad from
+ * ever being shown on those paths.
+ */
+object AppOpenShowFingerprint : Fingerprint(
+    definingClass = "Lra;",
+    name = "b",
+    returnType = "V",
+    parameters = listOf("Landroid/content/Context;", "L"),
+)
+
+/**
+ * Banner show/hide in `BaseBannerAdActivity`.
  *
- * Method shape (v2.3.5.1):
- * ```
- * .method public final a0()V
- *     iget-object v0, p0, ...->C:Landroid/view/ViewGroup;
- *     if-nez v0, :cond_0
- *     ...
- *     iget-boolean v0, p0, ...->D:Z
- *     if-eqz v0, :cond_1
- *     const/4 v0, 0x0
- *     invoke-virtual {p0, v0}, ...->c0(Z)V
- *     :cond_1
- *     return-void
- * ```
+ * All ~10 ad-bearing activities extend this class and call the banner method from `onCreate`.
+ * When field `D` (the "no ads" pref `kmgJSgyY`) is `true`, the banner container is hidden and
+ * banner creation is skipped. Forcing `D = true` hides the banner in every activity.
+ *
+ * Matches (verified against v2.3.5.1 smali): every non-static void method in the class that
+ * accesses a `ViewGroup`-typed field (`a0`, `c0`, `onResume`, `onDestroy`, `onStop`). All are
+ * safe to prepend `D = true` to; `onResume` is the one that skips banner creation.
  */
 object BannerDisplayFingerprint : Fingerprint(
     definingClass = "Lcom/inshot/videotomp3/BaseBannerAdActivity;",
-    name = "a0",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "V",
     filters = listOf(
         fieldAccess(
-            opcode = Opcode.IGET,
             definingClass = "this",
             type = "Landroid/view/ViewGroup;"
         ),
-    )
+    ),
+    // The injected code writes p0->D, so only instance methods are patchable.
+    custom = { method, _ -> !AccessFlags.STATIC.isSet(method.accessFlags) }
 )

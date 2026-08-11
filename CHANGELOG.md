@@ -1,3 +1,21 @@
+## [1.0.1-dev.3](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.1-dev.2...v1.0.1-dev.3) (2026-08-11)
+
+### 🐛 Bug Fixes
+
+* Retarget MP3 Cutter patches to the real premium and ads gates ([005c135](https://github.com/Jeff-tek/jeff-patches/commit/005c1353b45361965986bee40f3e7e10ecc2b353))
+
+## [1.0.1-dev.2](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.1-dev.1...v1.0.1-dev.2) (2026-08-11)
+
+### 🐛 Bug Fixes
+
+* Harden all MP3 Cutter fingerprints and drop template example patches ([f7bbd30](https://github.com/Jeff-tek/jeff-patches/commit/f7bbd30377fec705be18cf362b18e5e53064378f))
+
+## [1.0.1-dev.1](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.0...v1.0.1-dev.1) (2026-08-11)
+
+### 🐛 Bug Fixes
+
+* Make MP3 Cutter ads fingerprint robust against obfuscation ([4626999](https://github.com/Jeff-tek/jeff-patches/commit/4626999c17378e6cb93134840cc9cfa380d28400))
+
 ## 1.0.0 (2026-08-11)
 
 ### ✨ New Features
