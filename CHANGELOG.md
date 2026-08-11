@@ -1,3 +1,9 @@
+## [1.0.1-dev.1](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.0...v1.0.1-dev.1) (2026-08-11)
+
+### 🐛 Bug Fixes
+
+* Make MP3 Cutter ads fingerprint robust against obfuscation ([4626999](https://github.com/Jeff-tek/jeff-patches/commit/4626999c17378e6cb93134840cc9cfa380d28400))
+
 ## 1.0.0 (2026-08-11)
 
 ### ✨ New Features
