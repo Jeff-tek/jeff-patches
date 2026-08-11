@@ -1,3 +1,9 @@
+## [1.0.1-dev.3](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.1-dev.2...v1.0.1-dev.3) (2026-08-11)
+
+### 🐛 Bug Fixes
+
+* Retarget MP3 Cutter patches to the real premium and ads gates ([005c135](https://github.com/Jeff-tek/jeff-patches/commit/005c1353b45361965986bee40f3e7e10ecc2b353))
+
 ## [1.0.1-dev.2](https://github.com/Jeff-tek/jeff-patches/compare/v1.0.1-dev.1...v1.0.1-dev.2) (2026-08-11)
 
 ### 🐛 Bug Fixes

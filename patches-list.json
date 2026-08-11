@@ -1,10 +1,10 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.1-dev.2",
+  "version": "1.0.1-dev.3",
   "patches": [
     {
       "name": "Remove ads",
-      "description": "Removes splash, interstitial and banner ads from MP3 Cutter and Ringtone Maker.",
+      "description": "Removes app-open, splash, interstitial and banner ads from MP3 Cutter and Ringtone Maker.",
       "default": true,
       "dependencies": [],
       "compatiblePackages": [
