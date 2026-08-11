@@ -14,13 +14,16 @@ val removeAdsPatch = bytecodePatch(
 
     execute {
         // Master ads-enabled switch: return false = ads disabled everywhere.
-        AdsEnabledFingerprint.method.addInstructions(
-            0,
-            """
-                const/4 v0, 0x0
-                return v0
-            """
-        )
+        // matchAllOrNull instead of .method: patches all read sites, no-ops if unmatched.
+        AdsEnabledFingerprint.matchAllOrNull()?.forEach { match ->
+            match.method.addInstructions(
+                0,
+                """
+                    const/4 v0, 0x0
+                    return v0
+                """
+            )
+        }
 
         // Force the "no ads" flag in BaseBannerAdActivity, hiding the banner
         // container in every activity that extends it.

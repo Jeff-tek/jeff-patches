@@ -2,7 +2,6 @@ package app.jefftek.patches.ringtonemaker
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.fieldAccess
-import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 
@@ -46,31 +45,19 @@ object PremiumGateFingerprint : Fingerprint(
 )
 
 /**
- * `Lv32;->c()Z` — the master "are ads enabled" switch.
+ * The master "are ads enabled" switch (formerly `Lv32;->c()Z`, obfuscated per build).
  *
- * Reads the `qaU9l5Yt` SharedPreferences flag (default `true` = ads ON) and caches it in
- * field `a`. Checked by SplashActivity (splash ads) and the `hs` ad scheduler
+ * Reads the `qaU9l5Yt` SharedPreferences flag (default `true` = ads ON) and caches it in a
+ * boolean field. Checked by SplashActivity (splash ads) and the `hs` ad scheduler
  * (interstitial/full-screen AdActivity). Returning `false` disables all scheduled ads.
  *
- * Method shape (v2.3.5.1):
- * ```
- * .method public final c()Z
- *     iget v0, p0, Lv32;->a:I
- *     const/4 v1, -0x1
- *     if-ne v0, v1, :cond_0
- *     const-string v0, "qaU9l5Yt"
- *     invoke-static {v0, v2}, Lf4;->j(Ljava/lang/String;Z)Z
- *     ...
- * ```
+ * Per patcher docs, do NOT fingerprint obfuscated class/method names or exact access flags.
+ * The pref key `qaU9l5Yt` is a stable literal (the app can't rename its own pref key), so
+ * match purely on the boolean return type + that string anywhere in the method.
  */
 object AdsEnabledFingerprint : Fingerprint(
-    definingClass = "/v32;",
-    name = "c",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Z",
-    filters = listOf(
-        string("qaU9l5Yt"),
-    )
+    strings = listOf("qaU9l5Yt"),
 )
 
 /**

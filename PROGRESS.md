@@ -86,9 +86,17 @@ Workflow per app: get APK → disassemble (dex) → find hook method → write F
 
 ## Next steps (resume here)
 
-1. ⏳ IN PROGRESS: **MP3 Cutter and Ringtone Maker** patches (v2.3.5.1, `ringtone.maker.mp3.cutter.audio`, InShot). Fingerprints + 2 patches written, push pending.
-2. Commit `feat:` → push `dev` → CI pre-release → test in Morphe Manager on device.
-3. Merge PR #1 (`dev`→`main`) whenever a stable release is wanted.
+1. ✅ MP3 Cutter patches v1.0.0 released (stable). **On-device test FAILED**: RemoveAdsPatch crashed with
+   `PatchException: Failed to match the fingerprint: ...AdsEnabledFingerprint`.
+   **Root cause**: fingerprint pinned obfuscated class `v32` + method name `c` + exact `[PUBLIC,FINAL]`
+   accessFlags (exact int compare in Fingerprint.kt) + exact-equality `string("qaU9l5Yt")` filter.
+   Per patcher docs, obfuscated names/flag-exact pins are fragile — even a `SYNTHETIC` flag bit kills the match.
+   **Fix (committed as `fix:`)**: AdsEnabledFingerprint now = `returnType "Z"` + `strings listOf("qaU9l5Yt")`
+   (contains-match, any method); RemoveAdsPatch uses `matchAllOrNull()?.forEach` (patches every read site,
+   no-ops instead of throwing). PremiumGateFingerprint still matched OK (hl3.e survived; left as-is).
+2. ⏳ NEXT: user re-tests v1.0.0-dev.3 (or merge to main for stable) in Morphe Manager on device.
+   If ads remain (silent no-op), get the APK or v32.smali into this env for re-analysis.
+3. Merge `dev`→`main` for stable release once device test passes.
 
 ## Active app: MP3 Cutter and Ringtone Maker (ringtone.maker.mp3.cutter.audio)
 
