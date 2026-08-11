@@ -94,8 +94,9 @@ Workflow per app: get APK → disassemble (dex) → find hook method → write F
    **Fix (committed as `fix:`)**: AdsEnabledFingerprint now = `returnType "Z"` + `strings listOf("qaU9l5Yt")`
    (contains-match, any method); RemoveAdsPatch uses `matchAllOrNull()?.forEach` (patches every read site,
    no-ops instead of throwing). PremiumGateFingerprint still matched OK (hl3.e survived; left as-is).
-2. ⏳ NEXT: user re-tests v1.0.0-dev.3 (or merge to main for stable) in Morphe Manager on device.
-   If ads remain (silent no-op), get the APK or v32.smali into this env for re-analysis.
+2. ⏳ NEXT: user re-tests **v1.0.1-dev.1** (pre-release, `fix:` commit `4626999`) in Morphe Manager on device
+   (keep "Include pre-releases" ON). Note: version bumped from v1.0.0-dev.2 → v1.0.1-dev.1 because the
+   stable v1.0.0 exists now. If ads remain (silent no-op), get the APK or v32.smali into this env for re-analysis.
 3. Merge `dev`→`main` for stable release once device test passes.
 
 ## Active app: MP3 Cutter and Ringtone Maker (ringtone.maker.mp3.cutter.audio)
