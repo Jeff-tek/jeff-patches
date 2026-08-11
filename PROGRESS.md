@@ -11,9 +11,9 @@ built and released automatically via GitHub Actions.
 
 - v1.0.1-dev.2 device test: features NOT unlocked, ads NOT removed → "the patch didnt work at all".
 - Root cause is **NOT** obfuscation drift — it is three concrete fingerprint bugs (see below).
-- Fix committed to `dev` (v1.0.2-dev.1 expected): PremiumGate definingClass fixed, ads hooks retargeted
-  to the real ad gates (`Lk4;->m()Z` + `Lra;->b`), every fingerprint verified against the v2.3.5.1 smali
-  on disk, and misses now throw `PatchException` (loud) instead of silently no-oping.
+- Fix committed to `dev` (released as **v1.0.1-dev.3**, built 2026-08-11): PremiumGate definingClass fixed,
+  ads hooks retargeted to the real ad gates (`Lk4;->m()Z` + `Lra;->b`), every fingerprint verified against
+  the v2.3.5.1 smali on disk, and misses now throw `PatchException` (loud) instead of silently no-oping.
 
 ## ROOT CAUSE (why "nothing worked")
 
@@ -120,10 +120,10 @@ Workflow per app: get APK → disassemble (dex) → find hook method → write F
    `/hl3;` ENDS_WITH bug + v32.c() is analytics-only + real gates (k4.m / ra.b) never covered.
 2. ✅ Rewrote fingerprints + both patches (see "New hook set"), all verified against v2.3.5.1 disasm.
    Misses now throw PatchException (loud) instead of silent no-op.
-3. ⏳ Pushed `fix:` to dev → CI builds v1.0.2-dev.1 → user re-tests in Morphe Manager (pre-releases ON).
+3. ⏳ **v1.0.1-dev.3 released** (fix commit `005c135`, CI ✅) — user re-tests in Morphe Manager (pre-releases ON).
    - Success = features unlocked AND no app-open/splash/interstitial/banner ads.
    - Patch fails loudly with fingerprint name = tell me the exact error → I re-analyze.
-4. If v1.0.2-dev.1 passes → merge `dev`→`main` for stable release.
+4. If v1.0.1-dev.3 passes → merge `dev`→`main` for stable release.
 
 ## Active app: MP3 Cutter and Ringtone Maker (ringtone.maker.mp3.cutter.audio)
 
@@ -142,7 +142,7 @@ Workflow per app: get APK → disassemble (dex) → find hook method → write F
 3. **Banner**: `BaseBannerAdActivity` (11 subclasses) — `D:Z` no-ads flag hides container (`c0`→GONE)
    and skips `Lkn` AdView creation in `onResume`; `Lkn;->b(String)` creates/loads the AdMob AdView.
 
-### Patches authored (v1.0.2-dev.1)
+### Patches authored (v1.0.1-dev.3)
 - `ringtonemaker/Fingerprints.kt`: PremiumGateFingerprint (Lhl3), AdsDisabledFingerprint (k4.m),
   AppOpenShowFingerprint (ra.b), BannerDisplayFingerprint (BaseBannerAdActivity).
 - `ringtonemaker/UnlockAllFeaturesPatch.kt` — hl3.e() → return 1 (throws on miss).
