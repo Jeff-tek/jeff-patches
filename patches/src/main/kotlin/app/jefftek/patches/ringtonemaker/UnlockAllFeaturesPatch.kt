@@ -1,6 +1,7 @@
 package app.jefftek.patches.ringtonemaker
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.jefftek.patches.shared.Constants.COMPATIBILITY_RINGTONE_MAKER
 
@@ -13,7 +14,13 @@ val unlockAllFeaturesPatch = bytecodePatch(
     compatibleWith(COMPATIBILITY_RINGTONE_MAKER)
 
     execute {
-        PremiumGateFingerprint.matchAllOrNull()?.forEach { match ->
+        // Fail loudly on a miss so it is obvious in the patcher log when the
+        // fingerprint no longer matches, instead of silently shipping an unpatched APK.
+        val matches = PremiumGateFingerprint.matchAllOrNull()
+            ?: throw PatchException(
+                "PremiumGateFingerprint (Lhl3;->e) did not match — cannot unlock features in this build."
+            )
+        matches.forEach { match ->
             match.method.addInstructions(
                 0,
                 """

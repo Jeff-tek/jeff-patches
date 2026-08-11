@@ -8,24 +8,26 @@ import com.android.tools.smali.dexlib2.Opcode
 /**
  * Fingerprints for MP3 Cutter and Ringtone Maker (ringtone.maker.mp3.cutter.audio) v2.3.5.1.
  *
- * App is InShot's MP3 Cutter & Ringtone Maker. Code is partially obfuscated (hl3, v32),
- * so fingerprints pin to the exact version target.
+ * App is InShot's MP3 Cutter & Ringtone Maker. Code is partially obfuscated (hl3, v32, k4, ra),
+ * so fingerprints pin to the exact version target (compatibleWith v2.3.5.1).
+ *
+ * NOTE on `definingClass`: per patcher StringComparisonType semantics, "/hl3;" is compared with
+ * ENDS_WITH and can NEVER match "Lhl3;". Always declare the full type `L...;` (EQUALS) or a
+ * suffix like "hl3;" (ENDS_WITH that actually holds).
  */
 
 /**
  * `Lhl3;->e()Z` — the app-wide "is premium / feature unlocked" gate.
  *
  * Read at 8+ call sites (ContactsActivity, FinishActivity, PickerActivity, ringtone
- * category detail, etc.). Returning `false` triggers ad display and premium locks;
- * returning `true` unlocks features and skips premium-gated ads.
+ * category detail, etc.). Returns true when the user is premium.
  *
- * Per patcher docs, do NOT fingerprint exact access flags (exact int comparison — any
- * R8-added flag bit rejects the match). Class/method names are obfuscated per build but
- * are the only identifiers available for this gate (no stable string literal), so keep
- * them as best-effort pins and patch via matchAllOrNull so a miss degrades to a no-op.
+ * Match anchors (verified against v2.3.5.1 smali): class `Lhl3;`, method `e`, boolean return,
+ * and the `iget-object v0, p0, Lhl3;->a:Lzy0;` field read (field `a` of `this` is `Lzy0;`).
+ * The `Lzy0;` field access is the stable anchor — `zy0` is the purchase-state holder.
  */
 object PremiumGateFingerprint : Fingerprint(
-    definingClass = "/hl3;",
+    definingClass = "Lhl3;",
     name = "e",
     returnType = "Z",
     filters = listOf(
@@ -38,32 +40,47 @@ object PremiumGateFingerprint : Fingerprint(
 )
 
 /**
- * The master "are ads enabled" switch (formerly `Lv32;->c()Z`, obfuscated per build).
+ * `Lk4;->m()Z` — the master "ads disabled" gate.
  *
- * Reads the `qaU9l5Yt` SharedPreferences flag (default `true` = ads ON) and caches it in a
- * boolean field. Checked by SplashActivity (splash ads) and the `hs` ad scheduler
- * (interstitial/full-screen AdActivity). Returning `false` disables all scheduled ads.
- *
- * Per patcher docs, do NOT fingerprint obfuscated class/method names or exact access flags.
- * The pref key `qaU9l5Yt` is a stable literal (the app can't rename its own pref key), so
- * match purely on the boolean return type + that string anywhere in the method.
+ * Reads the `kmgJSgyY` SharedPreferences flag (default `false` = ads on) and returns true only
+ * when the flag is set AND the ad config object exists. Checked at 18 call sites across the app
+ * (ga activity-lifecycle app-open interstitial path, SplashActivity, AdActivity display,
+ * CategoryDetailActivity, q61 banner wrapper, ...) — every call site treats `true` as
+ * "block / skip the ad". Forcing `true` disables ads everywhere the app consults it.
  */
-object AdsEnabledFingerprint : Fingerprint(
+object AdsDisabledFingerprint : Fingerprint(
+    definingClass = "Lk4;",
+    name = "m",
     returnType = "Z",
-    strings = listOf("qaU9l5Yt"),
+    strings = listOf("kmgJSgyY"),
+    custom = { method, _ -> AccessFlags.STATIC.isSet(method.accessFlags) }
+)
+
+/**
+ * `Lra;->b(Landroid/content/Context;Loa;)V` — the App Open (interstitial) ad display entry.
+ *
+ * `Lra` wraps `Lcom/google/android/gms/ads/appopen/AppOpenAd`. `b(...)` loads unit config and
+ * schedules/displays the app-open ad; it is invoked from `Lga;->onActivityStopped` (app goes to
+ * background) and from a delayed `Lh` runnable. Returning immediately prevents the ad from
+ * ever being shown on those paths.
+ */
+object AppOpenShowFingerprint : Fingerprint(
+    definingClass = "Lra;",
+    name = "b",
+    returnType = "V",
+    parameters = listOf("Landroid/content/Context;", "L"),
 )
 
 /**
  * Banner show/hide in `BaseBannerAdActivity`.
  *
  * All ~10 ad-bearing activities extend this class and call the banner method from `onCreate`.
- * When field `D` (the "no ads" pref `kmgJSgyY`) is `true`, the banner container is
- * hidden; when `false`, the banner stays visible. Forcing `D = true` hides the banner
- * in every activity.
+ * When field `D` (the "no ads" pref `kmgJSgyY`) is `true`, the banner container is hidden and
+ * banner creation is skipped. Forcing `D = true` hides the banner in every activity.
  *
- * Per patcher docs, do NOT fingerprint obfuscated method names (`a0`) or exact access
- * flags. Match on the real (non-obfuscated) class + void return + any ViewGroup field
- * access (get or put — the smali uses `iget-object`, so an `IGET` pin would never match).
+ * Matches (verified against v2.3.5.1 smali): every non-static void method in the class that
+ * accesses a `ViewGroup`-typed field (`a0`, `c0`, `onResume`, `onDestroy`, `onStop`). All are
+ * safe to prepend `D = true` to; `onResume` is the one that skips banner creation.
  */
 object BannerDisplayFingerprint : Fingerprint(
     definingClass = "Lcom/inshot/videotomp3/BaseBannerAdActivity;",
