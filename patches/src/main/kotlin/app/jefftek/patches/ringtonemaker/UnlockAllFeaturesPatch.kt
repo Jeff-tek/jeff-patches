@@ -13,12 +13,14 @@ val unlockAllFeaturesPatch = bytecodePatch(
     compatibleWith(COMPATIBILITY_RINGTONE_MAKER)
 
     execute {
-        PremiumGateFingerprint.method.addInstructions(
-            0,
-            """
-                const/4 v0, 0x1
-                return v0
-            """
-        )
+        PremiumGateFingerprint.matchAllOrNull()?.forEach { match ->
+            match.method.addInstructions(
+                0,
+                """
+                    const/4 v0, 0x1
+                    return v0
+                """
+            )
+        }
     }
 }

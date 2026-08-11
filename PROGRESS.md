@@ -86,18 +86,25 @@ Workflow per app: get APK → disassemble (dex) → find hook method → write F
 
 ## Next steps (resume here)
 
-1. ✅ MP3 Cutter patches v1.0.0 released (stable). **On-device test FAILED**: RemoveAdsPatch crashed with
-   `PatchException: Failed to match the fingerprint: ...AdsEnabledFingerprint`.
-   **Root cause**: fingerprint pinned obfuscated class `v32` + method name `c` + exact `[PUBLIC,FINAL]`
-   accessFlags (exact int compare in Fingerprint.kt) + exact-equality `string("qaU9l5Yt")` filter.
-   Per patcher docs, obfuscated names/flag-exact pins are fragile — even a `SYNTHETIC` flag bit kills the match.
-   **Fix (committed as `fix:`)**: AdsEnabledFingerprint now = `returnType "Z"` + `strings listOf("qaU9l5Yt")`
-   (contains-match, any method); RemoveAdsPatch uses `matchAllOrNull()?.forEach` (patches every read site,
-   no-ops instead of throwing). PremiumGateFingerprint still matched OK (hl3.e survived; left as-is).
-2. ⏳ NEXT: user re-tests **v1.0.1-dev.1** (pre-release, `fix:` commit `4626999`) in Morphe Manager on device
-   (keep "Include pre-releases" ON). Note: version bumped from v1.0.0-dev.2 → v1.0.1-dev.1 because the
-   stable v1.0.0 exists now. If ads remain (silent no-op), get the APK or v32.smali into this env for re-analysis.
-3. Merge `dev`→`main` for stable release once device test passes.
+1. ✅ v1.0.1-dev.1 (fix commit `4626999`) — AdsEnabledFingerprint fixed (string-based).
+2. ✅ **On-device re-test #2 FAILED at BannerDisplayFingerprint** (RemoveAdsPatch.kt:30). Root cause: the
+   fingerprint pinned obfuscated method name `a0` + exact `[PUBLIC,FINAL]` flags AND declared
+   `opcode = IGET` while the smali actually uses `iget-object` (reference get) — an `IGET` pin can never match.
+   **Fix (committed as `fix:`)**: BannerDisplayFingerprint now = real class + `returnType V` + any
+   ViewGroup fieldAccess (no opcode pin) + `custom` non-static check (injected code writes `p0->D`,
+   so instance methods only); RemoveAdsPatch uses `matchAllOrNull()?.forEach`.
+3. ✅ **Full audit for the same bug class** (commit `fix:`, in progress):
+   - `PremiumGateFingerprint` — dropped exact accessFlags (same exact-int fragility). NOTE: this
+     fingerprint NEVER actually ran on device (both crashes aborted before "Unlock all features"
+     alphabetically runs) — now uses `matchAllOrNull` so a miss is a silent no-op, not a crash.
+   - Deleted template example patches (`example/ExamplePatch.kt`, `InternalPatch.kt`, `Fingerprints.kt`,
+     `COMPATIBILITY_EXAMPLE[_2]` in Constants.kt) — fake `com.example.app` dead weight shipped in every
+     release + same throwing `.method` pattern. Extension module `extensions/extension` now orphaned but
+     harmless (not in settings.gradle.kts, not built by CI).
+4. ⏳ NEXT: user re-tests **v1.0.1-dev.2** in Morphe Manager (pre-releases ON). If patches apply:
+   - ads gone + premium unlocked → merge `dev`→`main` for stable release.
+   - ads remain (silent no-op) → need APK/v32.smali in this env to re-analyze.
+5. Merge `dev`→`main` for stable release once device test passes.
 
 ## Active app: MP3 Cutter and Ringtone Maker (ringtone.maker.mp3.cutter.audio)
 
@@ -121,6 +128,5 @@ Workflow per app: get APK → disassemble (dex) → find hook method → write F
 
 ## Notes
 
-- Example patches (ExamplePatch/Fingerprints/InternalPatch, fake "com.example.app") kept as
-  reference — will be replaced with real patches.
+- Example patches deleted (was: kept as reference). All real patches now under `ringtonemaker/`.
 - Jeff's loop: push → CI builds → use artifact. No local Gradle builds (Termux-unfriendly).

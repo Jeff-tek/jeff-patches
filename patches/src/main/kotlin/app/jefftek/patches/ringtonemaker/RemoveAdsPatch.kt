@@ -27,12 +27,14 @@ val removeAdsPatch = bytecodePatch(
 
         // Force the "no ads" flag in BaseBannerAdActivity, hiding the banner
         // container in every activity that extends it.
-        BannerDisplayFingerprint.method.addInstructions(
-            0,
-            """
-                const/4 v0, 0x1
-                iput-boolean v0, p0, Lcom/inshot/videotomp3/BaseBannerAdActivity;->D:Z
-            """
-        )
+        BannerDisplayFingerprint.matchAllOrNull()?.forEach { match ->
+            match.method.addInstructions(
+                0,
+                """
+                    const/4 v0, 0x1
+                    iput-boolean v0, p0, Lcom/inshot/videotomp3/BaseBannerAdActivity;->D:Z
+                """
+            )
+        }
     }
 }

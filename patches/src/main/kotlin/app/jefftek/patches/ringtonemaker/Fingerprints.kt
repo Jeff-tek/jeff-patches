@@ -19,21 +19,14 @@ import com.android.tools.smali.dexlib2.Opcode
  * category detail, etc.). Returning `false` triggers ad display and premium locks;
  * returning `true` unlocks features and skips premium-gated ads.
  *
- * Method shape (v2.3.5.1):
- * ```
- * .method public final e()Z
- *     iget v0, p0, Lhl3;->p:I
- *     const/4 v1, -0x1
- *     ...
- *     iget-object v0, p0, Lhl3;->a:Lzy0;
- *     iget-boolean v0, v0, Lzy0;->b:Z
- *     ...
- * ```
+ * Per patcher docs, do NOT fingerprint exact access flags (exact int comparison — any
+ * R8-added flag bit rejects the match). Class/method names are obfuscated per build but
+ * are the only identifiers available for this gate (no stable string literal), so keep
+ * them as best-effort pins and patch via matchAllOrNull so a miss degrades to a no-op.
  */
 object PremiumGateFingerprint : Fingerprint(
     definingClass = "/hl3;",
     name = "e",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Z",
     filters = listOf(
         fieldAccess(
@@ -61,37 +54,26 @@ object AdsEnabledFingerprint : Fingerprint(
 )
 
 /**
- * `Lcom/inshot/videotomp3/BaseBannerAdActivity;->a0()V` — banner show/hide.
+ * Banner show/hide in `BaseBannerAdActivity`.
  *
- * All ~10 ad-bearing activities extend this class and call `a0()` from `onCreate`.
+ * All ~10 ad-bearing activities extend this class and call the banner method from `onCreate`.
  * When field `D` (the "no ads" pref `kmgJSgyY`) is `true`, the banner container is
- * hidden (`c0` → visibility GONE). When `false`, the banner stays visible.
- * Forcing `D = true` hides the banner in every activity.
+ * hidden; when `false`, the banner stays visible. Forcing `D = true` hides the banner
+ * in every activity.
  *
- * Method shape (v2.3.5.1):
- * ```
- * .method public final a0()V
- *     iget-object v0, p0, ...->C:Landroid/view/ViewGroup;
- *     if-nez v0, :cond_0
- *     ...
- *     iget-boolean v0, p0, ...->D:Z
- *     if-eqz v0, :cond_1
- *     const/4 v0, 0x0
- *     invoke-virtual {p0, v0}, ...->c0(Z)V
- *     :cond_1
- *     return-void
- * ```
+ * Per patcher docs, do NOT fingerprint obfuscated method names (`a0`) or exact access
+ * flags. Match on the real (non-obfuscated) class + void return + any ViewGroup field
+ * access (get or put — the smali uses `iget-object`, so an `IGET` pin would never match).
  */
 object BannerDisplayFingerprint : Fingerprint(
     definingClass = "Lcom/inshot/videotomp3/BaseBannerAdActivity;",
-    name = "a0",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "V",
     filters = listOf(
         fieldAccess(
-            opcode = Opcode.IGET,
             definingClass = "this",
             type = "Landroid/view/ViewGroup;"
         ),
-    )
+    ),
+    // The injected code writes p0->D, so only instance methods are patchable.
+    custom = { method, _ -> !AccessFlags.STATIC.isSet(method.accessFlags) }
 )
